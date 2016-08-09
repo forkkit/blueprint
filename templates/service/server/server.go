@@ -3,6 +3,8 @@ package server
 import (
 	"github.com/wercker/{{package .Name}}/core"
 	"github.com/wercker/{{package .Name}}/state"
+
+	"golang.org/x/net/context"
 )
 
 func New(store state.Store) (*{{class .Name}}Server, error) {
@@ -13,6 +15,11 @@ func New(store state.Store) (*{{class .Name}}Server, error) {
 
 type {{class .Name}}Server struct {
 	store        state.Store
+}
+
+
+func (s *{{class .Name}}Server) Action(ctx context.Context, req *core.ActionRequest) (*core.ActionResponse, error) {
+	return &core.ActionResponse{}, nil
 }
 
 // Make sure that {{.Name}}Server implements the core.{{.Name}}Service interface.

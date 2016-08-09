@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"text/template"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -13,9 +12,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
-	"gopkg.in/urfave/cli.v1"
+	cli "gopkg.in/urfave/cli.v1"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -48,6 +48,22 @@ func main() {
 		cli.StringFlag{
 			Name:  "output",
 			Value: "./output",
+		},
+		cli.StringFlag{
+			Name:  "name",
+			Value: "",
+		},
+		cli.StringFlag{
+			Name:  "description",
+			Value: "",
+		},
+		cli.StringFlag{
+			Name:  "port",
+			Value: "",
+		},
+		cli.BoolFlag{
+			Name: "y",
+			// Value: "",
 		},
 	}
 	app.Action = action
@@ -112,7 +128,7 @@ var action = func(c *cli.Context) error {
 		"template":      template,
 	}).Debug("Traversing template directory")
 
-	vars := getVars(output)
+	vars := getVars(c, output)
 
 	log.Println("Variables:")
 	dumpVars(vars)
@@ -141,6 +157,10 @@ func createWalker(templateRoot, outputRoot string, vars map[string]string) func(
 	return func(p string, info os.FileInfo, err error) error {
 		relativePath := strings.TrimPrefix(p, templateRoot)
 		if relativePath == "" {
+			return nil
+		}
+
+		if strings.HasSuffix(info.Name(), ".swp") {
 			return nil
 		}
 
@@ -232,11 +252,29 @@ type question struct {
 	Validators []Validator
 }
 
-func getVars(output string) map[string]string {
+func getVars(c *cli.Context, output string) map[string]string {
+	name := c.GlobalString("name")
+	if name == "" {
+		name = path.Base(output)
+	}
+	description := c.GlobalString("description")
+	if description == "" {
+		description = "I am too lazy to write a description for my project and am a bad person"
+	}
+	port := c.GlobalString("port")
+	if port == "" {
+		port = strconv.Itoa(randomInt(1024, 65535))
+	}
+	portInt, _ := strconv.Atoi(port)
+	gateway := strconv.Itoa(portInt + 1)
+	ask := !c.GlobalBool("y")
+
 	result := map[string]string{
-		"Name": path.Base(output),
-		"Port": strconv.Itoa(randomInt(1024, 65535)),
-		"Year": time.Now().Format("2006"),
+		"Name":        name,
+		"Port":        port,
+		"Description": description,
+		"Gateway":     gateway,
+		"Year":        time.Now().Format("2006"),
 	}
 
 	questions := []question{
@@ -255,17 +293,20 @@ func getVars(output string) map[string]string {
 
 	ValidLoop:
 		for isInvalid {
-			if hasDefault {
-				os.Stdout.WriteString(fmt.Sprintf("%s [%s]: ", q.Name, defaultValue))
-			} else {
-				os.Stdout.WriteString(fmt.Sprintf("%s: ", q.Name))
+			var val string
+			if ask {
+				if hasDefault {
+					os.Stdout.WriteString(fmt.Sprintf("%s [%s]: ", q.Name, defaultValue))
+				} else {
+					os.Stdout.WriteString(fmt.Sprintf("%s: ", q.Name))
+				}
+
+				scanner.Scan()
+				val = scanner.Text()
+
+				//var val string
+				//fmt.Fscanln(os.Stdin, &val)
 			}
-
-			scanner.Scan()
-			val := scanner.Text()
-
-			//var val string
-			//fmt.Fscanln(os.Stdin, &val)
 
 			if val == "" {
 				val = defaultValue
@@ -382,5 +423,5 @@ var Funcs template.FuncMap = template.FuncMap{
 	"method":  func(input string) string { return strings.Title(input) },
 	"class":   func(input string) string { return strings.Title(input) },
 	"file":    func(input string) string { return strings.ToLower(input) },
-	"title":   func(input string) string { return strings.ToLower(input) },
+	"title":   func(input string) string { return strings.Title(input) },
 }

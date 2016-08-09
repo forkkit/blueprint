@@ -2,6 +2,27 @@ syntax = "proto3";
 
 package core;
 
-service {{package .Name}} {
+import "google/api/annotations.proto";
+
+service {{title .Name}} {
+  rpc Action(ActionRequest) returns (ActionResponse) {
+    option (google.api.http) = {
+      post: "/api/v3/action"
+      body: "*"
+    };
+  }
 }
 
+message ActionRequest {
+  string resourceApplicationId = 1;
+  string resourceUserId = 2;
+  Resource resource = 3;
+}
+
+message ActionResponse {
+  bool success = 1;
+}
+
+message Resource {
+  string kind = 1;
+}
