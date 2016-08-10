@@ -15,6 +15,9 @@ import (
 	"google.golang.org/grpc"
 )
 
+// ErrInvalidPortNumber occurs if passing in a port that is not valid
+var ErrInvalidPortNumber = errors.New("Invalid port number")
+
 var serverCommand = cli.Command{
 	Name:   "server",
 	Usage:  "start gRPC server",
@@ -120,11 +123,11 @@ func getMongoStore(o *ServerOptions) (*state.MongoStore, error) {
 // ServerOptions are the options available for the server command.
 type ServerOptions struct {
 	*GlobalOptions
-	Port         int    
-	HealthPort   int   
-	StateStore   string 
-	MongoURI     string 
-	CookieSecret string 
+	Port         int
+	HealthPort   int
+	StateStore   string
+	MongoURI     string
+	CookieSecret string
 }
 
 // ParseServerOptions will parse the options that apply to the server command.
@@ -135,7 +138,7 @@ func ParseServerOptions(c *cli.Context) (*ServerOptions, error) {
 	}
 
 	port := c.Int("port")
-	if port <= 0 || port > 65535 {
+	if validPortNumber(port) {
 		return nil, fmt.Errorf("Invalid port number: %d", port)
 	}
 
@@ -148,4 +151,8 @@ func ParseServerOptions(c *cli.Context) (*ServerOptions, error) {
 		StateStore:    stateStore,
 		MongoURI:      mongoURI,
 	}, nil
+}
+
+func validPortNumber(port int) bool {
+	    return port > 0 && port < 65535
 }

@@ -3,10 +3,20 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "context",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "yXrS4e4yxaRBu/MX+39X3cS4kbg=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "a283a10442df8dc09befd873fab202bf8a253d6a",
 			"revisionTime": "2016-07-16T02:56:31Z"
+		},
+		{
+			"checksumSHA1": "NgOgDwqQnfQhahsECFCsSPEenE0=",
+			"path": "github.com/golang/protobuf/jsonpb",
+			"revision": "c3cefd437628a0b7d31b34fe44b3a7a540e98527",
+			"revisionTime": "2016-07-27T17:26:17Z"
 		},
 		{
 			"checksumSHA1": "5MVpi9U1WCrzZ1VMMn61Fc+trE0=",
@@ -15,46 +25,76 @@
 			"revisionTime": "2016-07-27T17:26:17Z"
 		},
 		{
+			"checksumSHA1": "0uWDQrsSzyQHYg5et19xtS+EWmY=",
+			"path": "github.com/grpc-ecosystem/grpc-gateway/runtime",
+			"revision": "ccd4e6b091a44f9f6b32848ffc63b3e8f8e26092",
+			"revisionTime": "2016-08-08T06:56:29Z"
+		},
+		{
+			"checksumSHA1": "GN9lH15GbtcX7xx70TjRYXi23Uk=",
+			"path": "github.com/grpc-ecosystem/grpc-gateway/runtime/internal",
+			"revision": "ccd4e6b091a44f9f6b32848ffc63b3e8f8e26092",
+			"revisionTime": "2016-08-08T06:56:29Z"
+		},
+		{
+			"checksumSHA1": "D+k9iBM97p4RvkjpogAJevV8hmw=",
+			"path": "github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api",
+			"revision": "ccd4e6b091a44f9f6b32848ffc63b3e8f8e26092",
+			"revisionTime": "2016-08-08T06:56:29Z"
+		},
+		{
+			"checksumSHA1": "vqiK5r5dntV7JNZ+ZsGlD0Samos=",
+			"path": "github.com/grpc-ecosystem/grpc-gateway/utilities",
+			"revision": "ccd4e6b091a44f9f6b32848ffc63b3e8f8e26092",
+			"revisionTime": "2016-08-08T06:56:29Z"
+		},
+		{
 			"checksumSHA1": "2HSjyUZ4IMkCeA34TjJ0/f+Kk/k=",
 			"path": "github.com/pkg/errors",
 			"revision": "2a9be18ecd8c148be18be08a811e33809206da19",
 			"revisionTime": "2016-08-01T10:26:19Z"
 		},
 		{
-			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
-			"path": "golang.org/x/net/context",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"checksumSHA1": "lLwoorVRJecmHPGChm3wUSjDr3s=",
+			"path": "github.com/wercker/auth/middleware",
+			"revision": "2fff3a430e9599221a8d9899a1ad1fc7d17b8390",
+			"revisionTime": "2016-08-04T14:26:23Z"
 		},
 		{
-			"checksumSHA1": "0bc3c97kJYE4eRtvEBiy0PhmIsA=",
+			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
+			"path": "golang.org/x/net/context",
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
+		},
+		{
+			"checksumSHA1": "g4lA8FNetHh8as26V8cLl5EGy78=",
 			"path": "golang.org/x/net/http2",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
 		},
 		{
 			"checksumSHA1": "EYNaHp7XdLWRydUCE0amEkKAtgk=",
 			"path": "golang.org/x/net/http2/hpack",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
 		},
 		{
 			"checksumSHA1": "/k7k6eJDkxXx6K9Zpo/OwNm58XM=",
 			"path": "golang.org/x/net/internal/timeseries",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
 		},
 		{
 			"checksumSHA1": "yhndhWXMs/VSEDLks4dNyFMQStA=",
 			"path": "golang.org/x/net/lex/httplex",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
 		},
 		{
 			"checksumSHA1": "WpST9lFOHvWrjDVy0GJNqHe+R3E=",
 			"path": "golang.org/x/net/trace",
-			"revision": "7c62cfdcccc65f87b0120ec841012ba816fc1aec",
-			"revisionTime": "2016-08-04T20:59:57Z"
+			"revision": "075e191f18186a8ff2becaf64478e30f4545cdad",
+			"revisionTime": "2016-08-05T06:12:51Z"
 		},
 		{
 			"checksumSHA1": "8fD/im5Kwvy3JgmxulDTambmE8w=",
@@ -151,7 +191,11 @@
 			"path": "gopkg.in/urfave/cli.v1",
 			"revision": "1efa31f08b9333f1bd4882d61f9d668a70cd902e",
 			"revisionTime": "2016-06-28T05:30:56Z"
+		},
+		{
+			"path": "net/http/httptrace",
+			"revision": ""
 		}
-	],
-	"rootPath": "github.com/wercker/{{package .Name}}"
+  ],
+  "rootPath": "github.com/wercker/{{package .Name}}"
 }
