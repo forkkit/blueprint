@@ -23,7 +23,7 @@ _testmain.go
 *.test
 *.prof
 
-{{file .Name }}
+blueprint
 /vendor/**
 !/vendor/vendor.json
 /.wercker

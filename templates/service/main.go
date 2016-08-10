@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"gopkg.in/urfave/cli.v1"
+	cli "gopkg.in/urfave/cli.v1"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 
 	app.Name = "Blueprint"
 	app.Copyright = "(c) 1996 Wercker Holding BV"
-	app.Usage = "Tivo for VRML"
+	app.Usage = "TiVo for VRML"
 
 	//app.Version = version.Version
 	//app.Compiled = version.CompiledAt

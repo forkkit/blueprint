@@ -1,6 +1,6 @@
 box: golang:1.6
 build:
-  base-path: /go/src/github.com/wercker/{{ file .Name }}
+  base-path: /go/src/github.com/wercker/blueprint/templates/service
   steps:
     - script:
         name: install govendor
@@ -38,9 +38,9 @@ build:
         code: |
           CGO_ENABLED=0 \
             go build \
-            -ldflags="-s -X github.com/wercker/{{package .Name}}.GitCommit=$WERCKER_GIT_COMMIT -X github.com/wercker/{{package .Name}}.PatchVersion=$(( ($(date +%s) - $(date --date=20150101 +%s) )/(60*60*24) )) -X github.com/wercker/{{package .Name}}.Compiled=$(date +%s)" \
+            -ldflags="-s -X github.com/wercker/blueprint.GitCommit=$WERCKER_GIT_COMMIT -X github.com/wercker/blueprint.PatchVersion=$(( ($(date +%s) - $(date --date=20150101 +%s) )/(60*60*24) )) -X github.com/wercker/blueprint.Compiled=$(date +%s)" \
             -installsuffix cgo \
-            -o $WERCKER_OUTPUT_DIR/{{file .Name}}
+            -o $WERCKER_OUTPUT_DIR/blueprint
 
     - script:
         name: forward deployment scripts
@@ -59,7 +59,7 @@ push-quay:
 
     - script:
         name: prepare
-        code: mv ./{{file .Name}} /{{file .Name}}
+        code: mv ./blueprint /blueprint
 
     - script:
         name: forward deployment scripts
@@ -70,13 +70,13 @@ push-quay:
         code: rm -rf /pipeline
 
     - internal/docker-push:
-        repository: quay.io/wercker/{{.Name}}
+        repository: quay.io/wercker/blueprint
         registry: https://quay.io
         username: $DOCKER_USERNAME
         password: $DOCKER_PASSWORD
         tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
-        entrypoint: /{{package .Name}}
-        ports: "{{.Port}}"
+        entrypoint: /blueprint
+        ports: 666
 
 deploy-kube:
   box:
