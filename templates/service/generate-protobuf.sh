@@ -9,7 +9,7 @@ protoc -I/usr/local/include \
   -I./vendor \
   -I./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
   --go_out=Mgoogle/api/annotations.proto=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google/api,plugins=grpc:. \
-  core/{{file .Name}}.proto
+  core/blueprint.proto
 
 echo "Generating gateway"
 protoc -I/usr/local/include \
@@ -18,7 +18,7 @@ protoc -I/usr/local/include \
   -I./vendor \
   -I./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
   --grpc-gateway_out=logtostderr=true:. \
-  core/{{file .Name}}.proto
+  core/blueprint.proto
 
 echo "Generating swagger"
 protoc -I/usr/local/include \
@@ -27,4 +27,4 @@ protoc -I/usr/local/include \
   -I./vendor \
   -I./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
   --swagger_out=logtostderr=true:. \
-  core/{{file .Name}}.proto
+  core/blueprint.proto

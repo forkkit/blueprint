@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"net"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/urfave/cli.v1"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
-	"github.com/wercker/{{package .Name}}/core"
-	"github.com/wercker/{{package .Name}}/server"
-	"github.com/wercker/{{package .Name}}/state"
+	"github.com/wercker/blueprint/templates/service/core"
+	"github.com/wercker/blueprint/templates/service/server"
+	"github.com/wercker/blueprint/templates/service/state"
 	"google.golang.org/grpc"
 )
 
@@ -24,13 +24,13 @@ var serverCommand = cli.Command{
 	Action: serverAction,
 	Flags: []cli.Flag{
 		cli.IntFlag{
-			Name:  "port",
-			Value: {{ .Port }},
+			Name:   "port",
+			Value:  666,
 			EnvVar: "PORT",
 		},
 		cli.StringFlag{
 			Name:  "mongo",
-			Value: "mongodb://localhost:27017/{{package .Name }}",
+			Value: "mongodb://localhost:27017/blueprint",
 		},
 		cli.StringFlag{
 			Name:  "state-store",
@@ -55,16 +55,16 @@ var serverAction = func(c *cli.Context) error {
 	defer store.Close()
 
 	//go func() {
-		//log.Printf("Starting health server on port: %d", o.HealthPort)
+	//log.Printf("Starting health server on port: %d", o.HealthPort)
 
-		//checker := health.New()
+	//checker := health.New()
 
-		//// Add store if it supports a Probe
-		//if storeProbe, ok := interface{}(store).(health.Probe); ok {
-			//checker.RegisterProbe("store", storeProbe)
-		//}
+	//// Add store if it supports a Probe
+	//if storeProbe, ok := interface{}(store).(health.Probe); ok {
+	//checker.RegisterProbe("store", storeProbe)
+	//}
 
-		//log.Printf("Health server stopped: %+v", checker.ListenAndServe(fmt.Sprintf(":%d", o.HealthPort)))
+	//log.Printf("Health server stopped: %+v", checker.ListenAndServe(fmt.Sprintf(":%d", o.HealthPort)))
 	//}()
 
 	log.Info("Creating server")
@@ -75,7 +75,7 @@ var serverAction = func(c *cli.Context) error {
 	}
 
 	s := grpc.NewServer()
-	core.Register{{method .Name }}Server(s, server)
+	core.RegisterBlueprintServer(s, server)
 
 	log.WithField("port", o.Port).Info("Starting server on port")
 
@@ -104,7 +104,7 @@ func getStore(o *ServerOptions) (state.Store, error) {
 }
 
 func getMongoStore(o *ServerOptions) (*state.MongoStore, error) {
-  log.WithField("", o.MongoURI).Debug("Creating MongoDB store")
+	log.WithField("", o.MongoURI).Debug("Creating MongoDB store")
 
 	log.Debug("Dialing the MongoDB cluster")
 	session, err := mgo.Dial(o.MongoURI)
@@ -154,5 +154,5 @@ func ParseServerOptions(c *cli.Context) (*ServerOptions, error) {
 }
 
 func validPortNumber(port int) bool {
-	    return port > 0 && port < 65535
+	return port > 0 && port < 65535
 }

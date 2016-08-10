@@ -9,9 +9,9 @@ import (
 func main() {
 	app := cli.NewApp()
 
-	app.Name = "{{title .Name }}"
-	app.Copyright = "(c) {{ .Year }} Wercker Holding BV"
-	app.Usage = "{{ .Description }}"
+	app.Name = "Blueprint"
+	app.Copyright = "(c) 1996 Wercker Holding BV"
+	app.Usage = "Tivo for VRML"
 
 	//app.Version = version.Version
 	//app.Compiled = version.CompiledAt

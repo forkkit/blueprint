@@ -160,16 +160,22 @@ func createWalker(templateRoot, outputRoot string, vars map[string]string) func(
 			return nil
 		}
 
+		fmt.Printf("relativePath %s\n", relativePath)
+		if info.Name() != "vendor" && info.Name() != "vendor.json" && strings.HasPrefix(relativePath, "/vendor") {
+			return nil
+		}
 		if strings.HasSuffix(info.Name(), ".swp") {
 			return nil
 		}
+
+		replacedPath := replaceSentinels(relativePath)
 
 		templatePath := path.Join(templateRoot, relativePath)
 
 		tmpl, err := template.
 			New(path.Join(outputRoot, relativePath)).
 			Funcs(Funcs).
-			Parse(path.Join(outputRoot, relativePath))
+			Parse(path.Join(outputRoot, replacedPath))
 		if err != nil {
 			return err
 		}
@@ -186,6 +192,7 @@ func createWalker(templateRoot, outputRoot string, vars map[string]string) func(
 				"path": p,
 			}).Error("Unable to access file")
 		} else if info.IsDir() {
+
 			return handleDirectory(templatePath, outputPath)
 		} else {
 			return handleFile(templatePath, outputPath, vars)
@@ -233,13 +240,32 @@ func handleFile(templatePath, outputPath string, vars map[string]string) error {
 	return tmpl.Execute(f, vars)
 }
 
+var replacements [][]string = [][]string{
+	[]string{"blueprint/templates/service", "{{package .Name}}"},
+	[]string{"Blueprint", "{{title .Name}}"},
+	[]string{"blueprint", "{{lower .Name}}"},
+	[]string{"666", "{{.Port}}"},
+	[]string{"667", "{{.Gateway}}"},
+	[]string{"Tivo for VRML", "{{.Description}}"},
+}
+
+func replaceSentinels(s string) string {
+	for _, x := range replacements {
+		search, replace := x[0], x[1]
+		s = strings.Replace(s, search, replace, -1)
+	}
+	return s
+}
+
 func getTemplate(templatePath string) (*template.Template, error) {
 	content, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return nil, err
 	}
+	contentString := string(content)
+	contentString = replaceSentinels(contentString)
 
-	tmpl, err := template.New(templatePath).Funcs(Funcs).Parse(string(content))
+	tmpl, err := template.New(templatePath).Funcs(Funcs).Parse(contentString)
 	if err != nil {
 		return nil, err
 	}
@@ -424,4 +450,5 @@ var Funcs template.FuncMap = template.FuncMap{
 	"class":   func(input string) string { return strings.Title(input) },
 	"file":    func(input string) string { return strings.ToLower(input) },
 	"title":   func(input string) string { return strings.Title(input) },
+	"lower":   func(input string) string { return strings.ToLower(input) },
 }

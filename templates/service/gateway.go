@@ -9,10 +9,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/wercker/auth/middleware"
-	"github.com/wercker/{{package .Name}}/core"
+	"github.com/wercker/blueprint/templates/service/core"
 	"golang.org/x/net/context"
-
-	"gopkg.in/urfave/cli.v1"
+	cli "gopkg.in/urfave/cli.v1"
 )
 
 var gatewayCommand = cli.Command{
@@ -22,12 +21,12 @@ var gatewayCommand = cli.Command{
 	Flags: []cli.Flag{
 		cli.IntFlag{
 			Name:   "port, p",
-			Value:  {{ .Gateway }},
+			Value:  667,
 			EnvVar: "HTTP_PORT",
 		},
 		cli.StringFlag{
 			Name:   "host",
-			Value:  "localhost:{{ .Port }}",
+			Value:  "localhost:666",
 			EnvVar: "GRPC_HOST",
 		},
 	},
@@ -49,7 +48,7 @@ var gatewayAction = func(c *cli.Context) error {
 	mux := runtime.NewServeMux()
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	err = core.Register{{class .Name}}HandlerFromEndpoint(ctx, mux, o.Host, opts)
+	err = core.RegisterBlueprintHandlerFromEndpoint(ctx, mux, o.Host, opts)
 	if err != nil {
 		log.Println(err)
 		return err

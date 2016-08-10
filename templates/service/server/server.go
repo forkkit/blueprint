@@ -1,26 +1,25 @@
 package server
 
 import (
-	"github.com/wercker/{{package .Name}}/core"
-	"github.com/wercker/{{package .Name}}/state"
+	"github.com/wercker/blueprint/templates/service/core"
+	"github.com/wercker/blueprint/templates/service/state"
 
 	"golang.org/x/net/context"
 )
 
-func New(store state.Store) (*{{class .Name}}Server, error) {
-	return &{{class .Name}}Server{
-		store:        store,
+func New(store state.Store) (*BlueprintServer, error) {
+	return &BlueprintServer{
+		store: store,
 	}, nil
 }
 
-type {{class .Name}}Server struct {
-	store        state.Store
+type BlueprintServer struct {
+	store state.Store
 }
 
-
-func (s *{{class .Name}}Server) Action(ctx context.Context, req *core.ActionRequest) (*core.ActionResponse, error) {
+func (s *BlueprintServer) Action(ctx context.Context, req *core.ActionRequest) (*core.ActionResponse, error) {
 	return &core.ActionResponse{}, nil
 }
 
 // Make sure that {{.Name}}Server implements the core.{{.Name}}Service interface.
-var _ core.{{class .Name}}Server = &{{class .Name}}Server{}
+var _ core.BlueprintServer = &BlueprintServer{}
