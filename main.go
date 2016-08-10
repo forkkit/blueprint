@@ -72,11 +72,12 @@ func main() {
 }
 
 var action = func(c *cli.Context) error {
-	output := c.GlobalString("output")
-	if output == "" {
-		log.Error("output is required")
-		return ErrorExitCode
-	}
+	vars := getVars(c)
+
+	log.Println("Variables:")
+	dumpVars(vars)
+
+	output := vars["Output"]
 
 	template := c.GlobalString("template")
 	if template == "" {
@@ -128,11 +129,6 @@ var action = func(c *cli.Context) error {
 		"template":      template,
 	}).Debug("Traversing template directory")
 
-	vars := getVars(c, output)
-
-	log.Println("Variables:")
-	dumpVars(vars)
-
 	//fmt.Fprint(os.Stdout, "Continue? [Y/n]")
 	// TODO(bvdberg): read from stdin and check if it is Y or empty
 
@@ -160,16 +156,21 @@ func createWalker(templateRoot, outputRoot string, vars map[string]string) func(
 			return nil
 		}
 
+		if info.Name() != "vendor" && info.Name() != "vendor.json" && strings.HasPrefix(relativePath, "/vendor") {
+			return nil
+		}
 		if strings.HasSuffix(info.Name(), ".swp") {
 			return nil
 		}
+
+		replacedPath := replaceSentinels(relativePath)
 
 		templatePath := path.Join(templateRoot, relativePath)
 
 		tmpl, err := template.
 			New(path.Join(outputRoot, relativePath)).
 			Funcs(Funcs).
-			Parse(path.Join(outputRoot, relativePath))
+			Parse(path.Join(outputRoot, replacedPath))
 		if err != nil {
 			return err
 		}
@@ -186,6 +187,7 @@ func createWalker(templateRoot, outputRoot string, vars map[string]string) func(
 				"path": p,
 			}).Error("Unable to access file")
 		} else if info.IsDir() {
+
 			return handleDirectory(templatePath, outputPath)
 		} else {
 			return handleFile(templatePath, outputPath, vars)
@@ -233,13 +235,32 @@ func handleFile(templatePath, outputPath string, vars map[string]string) error {
 	return tmpl.Execute(f, vars)
 }
 
+var replacements [][]string = [][]string{
+	[]string{"blueprint/templates/service", "{{lower .Name}}"},
+	[]string{"Blueprint", "{{title .Name}}"},
+	[]string{"blueprint", "{{lower .Name}}"},
+	[]string{"666", "{{.Port}}"},
+	[]string{"667", "{{.Gateway}}"},
+	[]string{"TiVo for VRML", "{{.Description}}"},
+}
+
+func replaceSentinels(s string) string {
+	for _, x := range replacements {
+		search, replace := x[0], x[1]
+		s = strings.Replace(s, search, replace, -1)
+	}
+	return s
+}
+
 func getTemplate(templatePath string) (*template.Template, error) {
 	content, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return nil, err
 	}
+	contentString := string(content)
+	contentString = replaceSentinels(contentString)
 
-	tmpl, err := template.New(templatePath).Funcs(Funcs).Parse(string(content))
+	tmpl, err := template.New(templatePath).Funcs(Funcs).Parse(contentString)
 	if err != nil {
 		return nil, err
 	}
@@ -252,10 +273,10 @@ type question struct {
 	Validators []Validator
 }
 
-func getVars(c *cli.Context, output string) map[string]string {
+func getVars(c *cli.Context) map[string]string {
 	name := c.GlobalString("name")
 	if name == "" {
-		name = path.Base(output)
+		name = "output"
 	}
 	description := c.GlobalString("description")
 	if description == "" {
@@ -271,6 +292,7 @@ func getVars(c *cli.Context, output string) map[string]string {
 
 	result := map[string]string{
 		"Name":        name,
+		"Output":      name,
 		"Port":        port,
 		"Description": description,
 		"Gateway":     gateway,
@@ -418,10 +440,20 @@ func randomInt(min, max int) int {
 	return int(i) + min
 }
 
+func studly(s string) string {
+	parts := strings.Split(s, "-")
+	newParts := []string{}
+	for _, part := range parts {
+		newParts = append(newParts, strings.Title(part))
+	}
+	return strings.Join(newParts, "")
+}
+
 var Funcs template.FuncMap = template.FuncMap{
-	"package": func(input string) string { return strings.ToLower(input) },
-	"method":  func(input string) string { return strings.Title(input) },
-	"class":   func(input string) string { return strings.Title(input) },
-	"file":    func(input string) string { return strings.ToLower(input) },
-	"title":   func(input string) string { return strings.Title(input) },
+	// "package": func(input string) string { return strings.ToLower(input) },
+	// "method":  func(input string) string { return strings.Title(input) },
+	// "class":   func(input string) string { return strings.Title(input) },
+	// "file":    func(input string) string { return strings.ToLower(input) },
+	"title": studly,
+	"lower": func(input string) string { return strings.ToLower(input) },
 }

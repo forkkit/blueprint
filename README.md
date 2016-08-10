@@ -27,3 +27,19 @@ You're going to need the plugins installed globally (the binaries in your path)
   go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
   go get -u github.com/golang/protobuf/protoc-gen-go
 ```
+
+
+# How to Write Templates
+
+We're using some special sentinel values that we will find replace in the doc
+before doing the templating:
+
+```
+  blueprint/templates/service -> {{package .Name}}
+  Blueprint -> {{title .Name}}
+  blueprint -> {{lower .Name}}
+  666 -> {{.Port}}
+  667 -> {{.Gateway}}
+  1996 -> {{.Year}}
+  Tivo for VRML -> {{.Description}}
+```

@@ -43,7 +43,7 @@ build:
         name: build output
         code: |
           rm -rf ./output
-          ./blueprint --template service -y
+          ./blueprint --template service -y --name step-registry
 
     - script:
         name: install protobuf plugins
@@ -55,8 +55,8 @@ build:
     - script:
         name: test output
         code: |
-          mv ./output ../output
-          cd ../output
+          mv ./step-registry ../step-registry
+          cd ../step-registry
           govendor sync
           ./generate-protobuf.sh
 

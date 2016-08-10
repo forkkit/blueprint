@@ -196,6 +196,6 @@
 			"path": "net/http/httptrace",
 			"revision": ""
 		}
-  ],
-  "rootPath": "github.com/wercker/{{package .Name}}"
+	],
+	"rootPath": "github.com/wercker/blueprint/templates/service"
 }

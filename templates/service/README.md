@@ -1,3 +1,3 @@
-# {{ title .Name }}
+# blueprint
 
-{{ .Description }} 
+TiVo for VRML
