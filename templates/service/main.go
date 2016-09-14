@@ -16,20 +16,31 @@ func main() {
 	//app.Version = version.Version
 	//app.Compiled = version.CompiledAt
 
-	app.Flags = []cli.Flag{}
+	app.Flags = []cli.Flag{
+		debugFlag,
+	}
 	app.Commands = []cli.Command{
 		//clientCommand,
-		//gatewayCommand,
+		gatewayCommand,
 		serverCommand,
 	}
 
 	app.Run(os.Args)
 }
 
-type GlobalOptions struct{}
+var debugFlag cli.BoolFlag = cli.BoolFlag{
+	Name: "Debug",
+}
+
+// GlobalOptions are global
+type GlobalOptions struct {
+	Debug bool
+}
 
 func ParseGlobalOptions(c *cli.Context) (*GlobalOptions, error) {
-	return &GlobalOptions{}, nil
+	return &GlobalOptions{
+		Debug: c.GlobalBool("debug"),
+	}, nil
 }
 
 var ErrorExitCode = cli.NewExitError("", 1)

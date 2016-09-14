@@ -25,6 +25,7 @@ func NewMongoStore(session *mgo.Session, databaseName string) (*MongoStore, erro
 	}, nil
 }
 
+// MongoStore represents our db interactions
 type MongoStore struct {
 	session *mgo.Session
 
@@ -34,6 +35,7 @@ type MongoStore struct {
 
 var _ Store = (*MongoStore)(nil)
 
+// Healthy should let us know if we are
 func (s *MongoStore) Healthy() error {
 	err := s.session.Ping()
 	if err != nil {
@@ -47,6 +49,7 @@ func (s *MongoStore) Healthy() error {
 	return nil
 }
 
+// Close gives up
 func (s *MongoStore) Close() error {
 	s.session.Close()
 	return nil

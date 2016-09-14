@@ -62,6 +62,7 @@ var gatewayAction = func(c *cli.Context) error {
 	return nil
 }
 
+// ParseGatewayOptions does just that
 func ParseGatewayOptions(c *cli.Context) (*GatewayOptions, error) {
 	port := c.Int("port")
 	if !validPortNumber(port) {
@@ -76,6 +77,7 @@ func ParseGatewayOptions(c *cli.Context) (*GatewayOptions, error) {
 	}, nil
 }
 
+// GatewayOptions control the gateway
 type GatewayOptions struct {
 	Port int
 	Host string
