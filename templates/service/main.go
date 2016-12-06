@@ -13,8 +13,8 @@ func main() {
 	app.Copyright = "(c) 1996 Wercker Holding BV"
 	app.Usage = "TiVo for VRML"
 
-	//app.Version = version.Version
-	//app.Compiled = version.CompiledAt
+	app.Version = Version()
+	app.Compiled = CompiledAt()
 
 	app.Flags = []cli.Flag{}
 	app.Commands = []cli.Command{
