@@ -3,10 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"path": "context",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "yXrS4e4yxaRBu/MX+39X3cS4kbg=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "a283a10442df8dc09befd873fab202bf8a253d6a",
@@ -233,10 +229,6 @@
 			"path": "gopkg.in/urfave/cli.v1",
 			"revision": "1efa31f08b9333f1bd4882d61f9d668a70cd902e",
 			"revisionTime": "2016-06-28T05:30:56Z"
-		},
-		{
-			"path": "net/http/httptrace",
-			"revision": ""
 		}
 	],
 	"rootPath": "github.com/wercker/blueprint/templates/service"
