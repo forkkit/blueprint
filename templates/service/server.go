@@ -39,6 +39,11 @@ var serverCommand = cli.Command{
 			Usage: "storage driver, currently supported [mongo]",
 			Value: "mongo",
 		},
+		cli.StringFlag{
+			Name:   "service-key",
+			Usage:  "Hex encoded service key to use",
+			EnvVar: "WERCKER_SERVICE_KEY",
+		},
 	},
 }
 
@@ -89,6 +94,7 @@ type serverOptions struct {
 	MongoDatabase string
 	MongoURI      string
 	Port          int
+	ServiceKey    []byte
 	StateStore    string
 }
 
@@ -98,10 +104,16 @@ func parseServerOptions(c *cli.Context) (*serverOptions, error) {
 		return nil, fmt.Errorf("Invalid port number: %d", port)
 	}
 
+	serviceKey, err := parseServiceKey(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid wercker service key")
+	}
+
 	return &serverOptions{
 		MongoDatabase: c.String("mongo-database"),
 		MongoURI:      c.String("mongo"),
 		Port:          port,
+		ServiceKey:    serviceKey,
 		StateStore:    c.String("state-store"),
 	}, nil
 }
