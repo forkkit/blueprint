@@ -27,7 +27,9 @@ build:
 
     - script:
         name: install dependencies
-        code: govendor sync
+        code: |
+          govendor sync
+          govendor list
 
     - script:
         name: go test
