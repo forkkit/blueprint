@@ -51,10 +51,10 @@
 			"revisionTime": "2016-08-08T06:56:29Z"
 		},
 		{
-			"checksumSHA1": "2HSjyUZ4IMkCeA34TjJ0/f+Kk/k=",
+			"checksumSHA1": "ynJSWoF6v+3zMnh9R0QmmG6iGV8=",
 			"path": "github.com/pkg/errors",
-			"revision": "2a9be18ecd8c148be18be08a811e33809206da19",
-			"revisionTime": "2016-08-01T10:26:19Z"
+			"revision": "248dadf4e9068a0b3e79f02ed0a610d935de5302",
+			"revisionTime": "2016-10-29T09:36:37Z"
 		},
 		{
 			"checksumSHA1": "hIEmcd7hIDqO/xWSp1rJJHd0TpE=",
