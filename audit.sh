@@ -52,9 +52,9 @@ check_not_using() {
   fi
 }
 
-check_no_glide() {
-  white "Checking has no glide... "
-  found=$(ls glide.* 2> /dev/null || true)
+check_has_no() {
+  white "Checking has no $1... "
+  found=$(ls $1 2> /dev/null || true)
   if [ -n "$found" ]; then
     fail
     echo "$found"
@@ -79,7 +79,7 @@ check_has() {
 main() {
   (
     cd "$1" || exit
-    check_no_glide
+    check_has_no glide.*
     check_not_using "github.com/Sirupsen/logrus"
     check_not_using "github.com/codegangsta/cli"
     check_has "core/generate-protobuf.sh"
