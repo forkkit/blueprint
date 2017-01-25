@@ -93,6 +93,12 @@
 			"revisionTime": "2016-08-04T14:26:23Z"
 		},
 		{
+			"checksumSHA1": "NEQ/2wtyrlripOJmKYDsO3X+hNI=",
+			"path": "github.com/wercker/pkg/log",
+			"revision": "1b566d65bd1f7671eca397e7babf1631a1800035",
+			"revisionTime": "2017-01-24T21:50:23Z"
+		},
+		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
 			"path": "golang.org/x/net/context",
 			"revision": "e57319ce2bbbdc638169d4756554fbaedc805399",
