@@ -16,6 +16,7 @@ import (
 	"github.com/wercker/blueprint/templates/service/server"
 	"github.com/wercker/blueprint/templates/service/state"
 	"github.com/wercker/pkg/conf"
+	"github.com/wercker/pkg/health"
 	"github.com/wercker/pkg/log"
 	"github.com/wercker/pkg/trace"
 	"google.golang.org/grpc"
@@ -33,6 +34,11 @@ var serverFlags = []cli.Flag{
 		Name:   "port",
 		Value:  666,
 		EnvVar: "PORT",
+	},
+	cli.IntFlag{
+		Name:   "health-port",
+		Value:  668,
+		EnvVar: "HEALTH_PORT",
 	},
 	cli.StringFlag{
 		Name:   "mongo",
@@ -60,6 +66,8 @@ var serverAction = func(c *cli.Context) error {
 		return errorExitCode
 	}
 
+	healthService := health.New()
+
 	tracer, err := getTracer(o.TraceOptions, "blueprint", o.Port)
 	if err != nil {
 		log.WithError(err).Error("Unable to create a tracer")
@@ -72,6 +80,7 @@ var serverAction = func(c *cli.Context) error {
 		return errorExitCode
 	}
 	defer store.Close()
+	healthService.RegisterProbe("store", store)
 
 	store = state.NewTraceStore(store, tracer)
 
@@ -105,14 +114,24 @@ var serverAction = func(c *cli.Context) error {
 		errc <- fmt.Errorf("%s", <-c)
 	}()
 
-	// Start gRPC server in separate goroutine
+	// Start gRPC server
 	go func() {
 		log.WithField("port", o.Port).Info("Starting server")
-		errc <- s.Serve(lis)
+		err := s.Serve(lis)
+		errc <- errors.Wrap(err, "server returned an error")
+	}()
+
+	// Start health server
+	go func() {
+		log.WithField("port", o.HealthPort).Info("Starting health service")
+		err := healthService.ListenAndServe(fmt.Sprintf(":%d", o.HealthPort))
+		errc <- errors.Wrap(err, "health service returned an error")
 	}()
 
 	err = <-errc
 	log.WithError(err).Info("Shutting down")
+
+	// TODO(bvdberg): graceful shutdown of health service
 
 	// Graceful shutdown the gRPC server
 	s.GracefulStop()
@@ -126,6 +145,7 @@ type serverOptions struct {
 	MongoDatabase string
 	MongoURI      string
 	Port          int
+	HealthPort    int
 	StateStore    string
 }
 
@@ -134,7 +154,16 @@ func parseServerOptions(c *cli.Context) (*serverOptions, error) {
 
 	port := c.Int("port")
 	if !validPortNumber(port) {
-		return nil, fmt.Errorf("Invalid port number: %d", port)
+		return nil, fmt.Errorf("invalid port number: %d", port)
+	}
+
+	healthPort := c.Int("health-port")
+	if !validPortNumber(port) {
+		return nil, fmt.Errorf("invalid health port number: %d", port)
+	}
+
+	if port == healthPort {
+		return nil, errors.New("port and health-port cannot be the same")
 	}
 
 	return &serverOptions{
@@ -143,6 +172,7 @@ func parseServerOptions(c *cli.Context) (*serverOptions, error) {
 		MongoDatabase: c.String("mongo-database"),
 		MongoURI:      c.String("mongo"),
 		Port:          port,
+		HealthPort:    healthPort,
 		StateStore:    c.String("state-store"),
 	}, nil
 }
