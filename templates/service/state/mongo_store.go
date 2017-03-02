@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -52,26 +51,6 @@ func (s *MongoStore) Healthy() error {
 func (s *MongoStore) Close() error {
 	s.session.Close()
 	return nil
-}
-
-// ParseObjectID takes id and returns a ObjectID. First it will try to parse
-// id as a Hex encoded string, otherwise it will try to parse the []byte
-// representation.
-// TODO(bvdberg): Move to shared library
-func ParseObjectID(id string) (bson.ObjectId, error) {
-	var o bson.ObjectId
-
-	if bson.IsObjectIdHex(id) {
-		o = bson.ObjectIdHex(id)
-		return o, nil
-	}
-
-	o = bson.ObjectId(id)
-	if o.Valid() {
-		return o, nil
-	}
-
-	return o, ErrInvalidObjectID
 }
 
 var _ Store = (*MongoStore)(nil)
