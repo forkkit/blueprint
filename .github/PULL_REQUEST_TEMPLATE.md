@@ -8,6 +8,8 @@ Please provide the following information:
 
 **- What I did**
 
+**- Why I did it**
+
 **- How I did it**
 
 **- How to verify it**
