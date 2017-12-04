@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -13,15 +14,10 @@ import (
 	"strconv"
 	"time"
 
-	cli "gopkg.in/urfave/cli.v1"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/manifoldco/promptui"
+	cli "gopkg.in/urfave/cli.v1"
 )
-
-// TODO(bvdberg): create repo on github
-// TODO(bvdberg): add all files to repo
-// TODO(bvdberg): govendor sync
-// TODO(bvdberg): create wercker app (plus pipelines, env vars, etc) [staging, production]
 
 var ErrorExitCode = cli.NewExitError("", 1)
 
@@ -39,6 +35,7 @@ var (
 	initCommand = cli.Command{
 		Name:  "init",
 		Usage: "start a new project based on a template",
+
 		Action: func(c *cli.Context) error {
 			err := initAction(c)
 			if err != nil {
@@ -62,11 +59,40 @@ var (
 
 // initAction generates a config and then does an apply on an empty dir
 func initAction(c *cli.Context) error {
-	if len(c.Args()) < 2 {
-		return fmt.Errorf("Need a template and a name")
+	// [get defaults]
+	// override with cli flags
+	// show prompt
+	// validate input
+
+	var err error
+	template := ""
+	name := ""
+
+	args := c.Args()
+	switch len(args) {
+	case 2:
+		name = args[1]
+		fallthrough
+	case 1:
+		template = args[0]
+		fallthrough
+	case 0:
+	default:
+		return errors.New("Too many arguments supplied")
 	}
-	template := c.Args()[0]
-	name := c.Args()[1]
+
+	prompt := promptui.Prompt{Label: "template name", Default: template}
+	template, err = prompt.Run()
+	if err != nil {
+		return err
+	}
+
+	prompt = promptui.Prompt{Label: "service name", Default: name}
+	name, err = prompt.Run()
+	if err != nil {
+		return err
+	}
+
 	port := randomInt(1024, 65535)
 	gatewayPort := port + 1
 	healthPort := port + 2
