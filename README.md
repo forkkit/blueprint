@@ -1,43 +1,42 @@
 # blueprint
 
-Blueprint takes a template and turns it into a application. And more!
-
-# Design
-
-This is how a new project will be set up, we'll need to make existing projects
-look enough like this for the rest of the magic to work.
-
-file structure from blueprint root:
-
-```
-- templates           # where templates are held
-  - service           # a template named service
-- managed             # where services managed by blueprint live
-  - inspector         # a service managed by blueprint
-    - .managed.json   # the config used to generate this service
-```
+Blueprint takes a template and turns it into source code. And more!
 
 # Usage
 
-Start a new project:
-
-`blueprint init service $name`
-
-# Generating files
-
-We use go generate
+To start a project use the `init` command. It requires a couple of arguments,
+such as the template and the new name of the service.
 
 ```
-govendor generate +local
+blueprint init [service name] [name]
 ```
 
+Blueprint will prompt for these, but it is possible to provide these through
+flags.
+
+# Building
+
+We use govendor to ensure all dependencies with their expected versions are
+present in the vendor directory.
+
+```
+govendor sync
+go install
+```
+
+# iGenerator
+
+We use igenerator to generate trace and metrics stores for certain templates.
 See [cmd/igenerator/README.md](cmd/igenerator/README.md) for more information
 regarding generating stores and deploying the related Docker image.
 
-# How to Write Templates
+# Templates
 
-We're using some special sentinel values that we will find replace in the doc
-before doing the templating:
+## Creating new templates
+
+To create a new template in the templates folder. The files in there
+will be expanded using using normal go templates. However we use a couple of
+sentinels to make it easier to work with the templates:
 
 ```
 "blueprint/templates/service" => "{{lower .Name}}"},
@@ -53,4 +52,16 @@ before doing the templating:
 }
 ```
 
-Of note is blue_print, which must be used for things that are package names
+Of note is `blue_print`, which must be used for things that are package names.
+
+Blueprint will also replace names in the directory names and filenames.
+
+# Future features
+
+The following is a list of features that we want to create, but they currently
+do not exist yet.
+
+- Allow remote templates from Github or tarball's.
+- Allow templates to specify their own parameters, sentinel, etc.
+- Allow files to be ignored and/or sentinels in specific places to be ignored.
+- Go format all .go files.
