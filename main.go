@@ -97,7 +97,7 @@ func initAction(c *cli.Context) error {
 	gatewayPort := port + 1
 	healthPort := port + 2
 	metricsPort := port + 3
-	description := "I am too lazy to write a description for my project and am a bad person"
+	description := "Example description"
 
 	config := &Config{
 		Template:    template,
