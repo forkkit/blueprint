@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -13,15 +14,10 @@ import (
 	"strconv"
 	"time"
 
-	cli "gopkg.in/urfave/cli.v1"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/manifoldco/promptui"
+	cli "gopkg.in/urfave/cli.v1"
 )
-
-// TODO(bvdberg): create repo on github
-// TODO(bvdberg): add all files to repo
-// TODO(bvdberg): govendor sync
-// TODO(bvdberg): create wercker app (plus pipelines, env vars, etc) [staging, production]
 
 var ErrorExitCode = cli.NewExitError("", 1)
 
@@ -37,13 +33,11 @@ func init() {
 
 var (
 	initCommand = cli.Command{
-		Name:  "init",
-		Usage: "start a new project based on a template",
+		Name:      "init",
+		Usage:     "start a new project based on a template",
+		ArgsUsage: "[service_name, [output_name]]",
 		Action: func(c *cli.Context) error {
 			err := initAction(c)
-			if err != nil {
-				fmt.Printf("%s\n", err.Error())
-			}
 			return err
 		},
 	}
@@ -52,9 +46,6 @@ var (
 		Usage: "update a project based on a template",
 		Action: func(c *cli.Context) error {
 			err := applyAction(c)
-			if err != nil {
-				fmt.Printf("%s\n", err.Error())
-			}
 			return err
 		},
 	}
@@ -62,16 +53,50 @@ var (
 
 // initAction generates a config and then does an apply on an empty dir
 func initAction(c *cli.Context) error {
-	if len(c.Args()) < 2 {
-		return fmt.Errorf("Need a template and a name")
+	var err error
+	template := ""
+	name := ""
+
+	args := c.Args()
+	switch len(args) {
+	case 2:
+		name = args[1]
+		fallthrough
+	case 1:
+		template = args[0]
+		fallthrough
+	case 0:
+	default:
+		return errors.New("Too many arguments supplied")
 	}
-	template := c.Args()[0]
-	name := c.Args()[1]
+
+	if !c.GlobalBool("non-interactive") {
+		prompt := promptui.Prompt{Label: "template name", Default: template}
+		template, err = prompt.Run()
+		if err != nil {
+			return err
+		}
+
+		prompt = promptui.Prompt{Label: "service name", Default: name}
+		name, err = prompt.Run()
+		if err != nil {
+			return err
+		}
+	}
+
+	if template == "" {
+		return cli.NewExitError("template cannot be empty", 1)
+	}
+
+	if name == "" {
+		return cli.NewExitError("name cannot be empty", 1)
+	}
+
 	port := randomInt(1024, 65535)
 	gatewayPort := port + 1
 	healthPort := port + 2
 	metricsPort := port + 3
-	description := "I am too lazy to write a description for my project and am a bad person"
+	description := "Example description"
 
 	config := &Config{
 		Template:    template,
@@ -177,6 +202,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "managed-path",
 			Value: "./managed",
+		},
+		cli.BoolFlag{
+			Name:  "non-interactive",
+			Usage: "disable interactive prompts",
 		},
 	}
 	app.Commands = []cli.Command{
