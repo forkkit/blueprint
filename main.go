@@ -33,14 +33,11 @@ func init() {
 
 var (
 	initCommand = cli.Command{
-		Name:  "init",
-		Usage: "start a new project based on a template",
-
+		Name:      "init",
+		Usage:     "start a new project based on a template",
+		ArgsUsage: "[service_name, [output_name]]",
 		Action: func(c *cli.Context) error {
 			err := initAction(c)
-			if err != nil {
-				fmt.Printf("%s\n", err.Error())
-			}
 			return err
 		},
 	}
@@ -49,9 +46,6 @@ var (
 		Usage: "update a project based on a template",
 		Action: func(c *cli.Context) error {
 			err := applyAction(c)
-			if err != nil {
-				fmt.Printf("%s\n", err.Error())
-			}
 			return err
 		},
 	}
@@ -59,11 +53,6 @@ var (
 
 // initAction generates a config and then does an apply on an empty dir
 func initAction(c *cli.Context) error {
-	// [get defaults]
-	// override with cli flags
-	// show prompt
-	// validate input
-
 	var err error
 	template := ""
 	name := ""
@@ -81,16 +70,26 @@ func initAction(c *cli.Context) error {
 		return errors.New("Too many arguments supplied")
 	}
 
-	prompt := promptui.Prompt{Label: "template name", Default: template}
-	template, err = prompt.Run()
-	if err != nil {
-		return err
+	if !c.GlobalBool("non-interactive") {
+		prompt := promptui.Prompt{Label: "template name", Default: template}
+		template, err = prompt.Run()
+		if err != nil {
+			return err
+		}
+
+		prompt = promptui.Prompt{Label: "service name", Default: name}
+		name, err = prompt.Run()
+		if err != nil {
+			return err
+		}
 	}
 
-	prompt = promptui.Prompt{Label: "service name", Default: name}
-	name, err = prompt.Run()
-	if err != nil {
-		return err
+	if template == "" {
+		return cli.NewExitError("template cannot be empty", 1)
+	}
+
+	if name == "" {
+		return cli.NewExitError("name cannot be empty", 1)
 	}
 
 	port := randomInt(1024, 65535)
@@ -203,6 +202,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "managed-path",
 			Value: "./managed",
+		},
+		cli.BoolFlag{
+			Name:  "non-interactive",
+			Usage: "disable interactive prompts",
 		},
 	}
 	app.Commands = []cli.Command{
