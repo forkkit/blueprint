@@ -11,15 +11,15 @@ if [ -e /var/run/docker.sock ]; then
     -u $(id -u $USER):$(id -g $USER) \
     -w $ROOT \
     -v $LOCAL:$ROOT \
-    quay.io/wercker/protoc"
+    iad.ocir.io/odx-pipelines/wercker/protoc:2.0.0"
 else
   ROOT=$LOCAL
   protoc="protoc \
-    -I/usr/local/include
-    -I.
+    -I/usr/local/include \
+    -I. \
     -I$GOPATH/src \
-    -I./vendor \
-    -I./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis"
+    -I$GOPATH/src/github.com/googleapis/googleapis \
+    -I./vendor"
 fi
 
 cd $LOCAL

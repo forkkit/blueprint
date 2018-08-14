@@ -1,5 +1,5 @@
 build:
-  box: golang:1.8
+  box: golang:1.10
   base-path: /go/src/github.com/wercker/blueprint
   steps:
     - install-packages:
@@ -14,26 +14,26 @@ build:
 
     - add-to-known_hosts:
         hostname: github.com
-        fingerprint: 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48
+        fingerprint: nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8
         type: rsa
 
     - script:
         name: install protobuf 3
         code: |
-          export PROTOBUF_VERSION=3.0.0
+          export PROTOBUF_VERSION=3.6.1
           curl -L https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip > /tmp/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
           cd /tmp
           unzip protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
           export PATH=/tmp/bin:$PATH
 
     - script:
-        name: install govendor
-        code: go get -u github.com/kardianos/govendor
+        name: install dep
+        code: go get -u github.com/golang/dep/cmd/dep
 
     - script:
         name: install dependencies
         code: |
-          govendor sync
+          dep ensure
 
     - script:
         name: compile
@@ -55,10 +55,14 @@ build:
     - script:
         name: install protobuf plugins
         code: |
-          export PROTOC_GRPC_VERSION=v1.2.2
+          export PROTOC_GRPC_VERSION=v1.4.1
 
           go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
           go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+
+          mkdir -p $GOPATH/src/github.com/googleapis
+          cd $GOPATH/src/github.com/googleapis
+          git clone git@github.com:googleapis/googleapis.git
 
           # Switch to tag
           cd $GOPATH/src/github.com/grpc-ecosystem/grpc-gateway
@@ -82,8 +86,13 @@ build:
           export GENERATOR_PATH=/go/src/github.com/wercker/blueprint/cmd/igenerator
           mv ./managed/step-registry ../step-registry
           cd ../step-registry
-          govendor sync
-          govendor generate +local
+          dep ensure
+          cd stepregistrypb
+          ./generate-protobuf.sh
+          cd ../state
+          ./generate-stores.sh
+          cd ..
+          dep ensure --update
           go build
           cp -r ./ $WERCKER_REPORT_ARTIFACTS_DIR/step-registry
 
@@ -154,7 +163,7 @@ audit-step:
           $stepctl publish --auth-token=$WERCKER_AUTH_TOKEN
 
 proto-box:
-  box: golang:1.8
+  box: golang:1.10
   base-path: /go/src/github.com/wercker/blueprint
   steps:
     - install-packages:
@@ -169,23 +178,26 @@ proto-box:
 
     - add-to-known_hosts:
         hostname: github.com
-        fingerprint: 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48
+        fingerprint: nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8
         type: rsa
 
     - script:
         name: install protobuf 3
         code: |
-          export PROTOBUF_VERSION=3.3.0
+          export PROTOBUF_VERSION=3.6.1
           curl -L https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip > /tmp/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
           cd /tmp
-          unzip protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
+          mkdir foo
+          cd foo
+          unzip ../protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
+          find . -type f | xargs chmod a+rw
           mv -v include/* /usr/local/include/
           mv -v bin/* /usr/local/bin
 
     - script:
         name: install protobuf plugins
         code: |
-          export PROTOC_GRPC_VERSION=v1.2.2
+          export PROTOC_GRPC_VERSION=v1.4.1
 
           go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
           go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
@@ -198,6 +210,13 @@ proto-box:
           cd ../protoc-gen-swagger
           go install
 
+          # Get common proto headers
+          cd $GOPATH/src/github.com
+          mkdir googleapis
+          cd googleapis
+          git clone git@github.com:googleapis/googleapis.git
+
+          # Build plugins
           go get -u github.com/golang/protobuf/protoc-gen-go
           cd $GOPATH/src/github.com/golang/protobuf
           export PROTOC_GO_VERSION=$(git rev-parse HEAD)
@@ -226,10 +245,11 @@ proto-box:
         code: rm -rf /pipeline /tmp/*
 
     - internal/docker-push:
-        repository: quay.io/wercker/protoc
-        registry: https://quay.io
-        username: $DOCKER_USERNAME
-        password: $DOCKER_PASSWORD
+        repository: iad.ocir.io/odx-pipelines/wercker/protoc
+        tag: "2.0.0"
+        registry: https://iad.ocir.io/v2
+        username: ${OCIR_USERNAME}
+        password: ${OCIR_PASSWORD}
         entrypoint: /protoc.sh
 
 igenerator-push-quay:
